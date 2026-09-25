@@ -1,5 +1,7 @@
 # AI Knowledge Assistant
 
+[![CI](https://github.com/Samrith-026/ai-knowledge-assistant/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Samrith-026/ai-knowledge-assistant/actions/workflows/ci.yml)
+
 A production-style retrieval-augmented generation (RAG) API for indexing PDF and TXT documents and answering questions with source references. The service combines FastAPI, OpenAI embeddings and responses, PostgreSQL with pgvector, and Redis-backed caching and rate limiting.
 
 ## Architecture
@@ -131,11 +133,11 @@ Compose starts PostgreSQL/pgvector and Redis, waits for their health checks, ini
 
 ## Example upload and ask workflow
 
-Upload a document:
+Upload the included fictional sample document (it contains no real company or employee information):
 
 ```sh
 curl -X POST http://localhost:8000/documents/upload \
-  -F "file=@./handbook.pdf"
+  -F "file=@./examples/demo_handbook.txt"
 ```
 
 Ask a question:
@@ -143,7 +145,7 @@ Ask a question:
 ```sh
 curl -X POST http://localhost:8000/ask \
   -H "Content-Type: application/json" \
-  -d '{"question":"What does the handbook say about leave?"}'
+  -d '{"question":"How many paid time-off days do full-time team members receive?"}'
 ```
 
 The upload response includes the filename and number of indexed chunks. The ask response contains an answer plus source records with document name, chunk index, content, and cosine distance. If no retrieved chunk passes the configured relevance threshold, the service returns an insufficient-context answer instead of calling the response model.
