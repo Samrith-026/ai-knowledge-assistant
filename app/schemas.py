@@ -23,3 +23,11 @@ class UploadResponse(BaseModel):
     filename: str
     chunks_created: int
     message: str
+
+class DocumentSummary(BaseModel):
+    filename: str
+    chunks: int
+
+
+class DocumentsResponse(BaseModel):
+    documents: list[DocumentSummary]

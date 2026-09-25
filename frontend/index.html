@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f5f7f4">
+<meta name="description" content="A source-aware workspace for asking questions across your documents.">
+<title>Knowledge Assistant — Your document workspace</title>
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/static/styles.css"><script src="/static/app.js" defer></script>
+</head>
+<body>
+<div class="shell">
+<aside class="sidebar" aria-label="Main navigation">
+  <a class="brand" href="#overview"><span class="brand-mark">▤</span><span><strong>Knowledge</strong><small>ASSISTANT</small></span></a>
+  <div class="side-label">WORKSPACE</div>
+  <nav class="nav-list"><a class="nav-item active" href="#overview"><b>◫</b>Overview</a><a class="nav-item" href="#documents"><b>▤</b>My documents</a><a class="nav-item" href="#assistant"><b>✳</b>Ask assistant</a></nav>
+  <div class="sidebar-bottom"><div class="sidebar-tip"><span>✦</span><strong>Answers with context</strong><p>Responses include passages from the documents that support them.</p></div><div class="service-state"><i class="status-dot" id="sideDot"></i><span id="sideState">Checking service…</span></div><a class="api-link" href="/docs" target="_blank" rel="noreferrer">API documentation <b>↗</b></a></div>
+</aside>
+<main class="main" id="overview">
+<header class="topbar"><div class="crumb">Workspace <span>/</span> <strong>Overview</strong></div><div class="top-right"><span class="secure">◈ &nbsp;KNOWLEDGE WORKSPACE</span><button class="menu-button" id="menuButton" type="button" aria-label="Toggle navigation" aria-expanded="false">☰</button><span class="avatar" aria-label="Knowledge Assistant">K</span></div></header>
+<section class="hero"><div class="hero-copy"><div class="eyebrow"><i></i> YOUR KNOWLEDGE, CONNECTED</div><h1>Good questions<br><em>start here.</em></h1><p>Bring your documents together. Get clear answers grounded in information you trust.</p><a class="primary-button" href="#assistant">Ask your first question <b>→</b></a></div>
+<div class="hero-art" aria-hidden="true"><div class="orbit orbit-a"></div><div class="orbit orbit-b"></div><div class="hero-core">▤</div><div class="floating-card back"><b>▤</b><i></i><i></i><i class="short"></i></div><div class="floating-card front"><span>✦</span><strong>Relevant passage found</strong><i></i><i class="wide"></i><small>Source · passage 04</small></div><div class="art-caption"><i class="status-dot online"></i> GROUNDED IN YOUR SOURCES</div></div></section>
+<section class="metrics" aria-label="Workspace metrics">
+<article class="metric"><div><span class="metric-icon mint">▤</span><small>LIBRARY</small></div><strong id="documentCount">—</strong><label>indexed documents</label></article>
+<article class="metric"><div><span class="metric-icon lilac">⌘</span><small>KNOWLEDGE</small></div><strong id="chunkCount">—</strong><label>searchable passages</label></article>
+<article class="metric"><div><span class="metric-icon peach">✳</span><small>THIS SESSION</small></div><strong id="answerCount">0</strong><label>questions answered</label></article>
+<article class="metric"><div><span class="metric-icon blue">◉</span><small>SYSTEM</small></div><strong class="system-value"><i class="status-dot" id="mainDot"></i><span id="mainState">Connecting</span></strong><label>assistant availability</label></article>
+</section>
+<section class="workspace-grid" aria-label="Document and assistant workspace">
+<div class="library-column">
+<article class="panel" id="documents"><div class="panel-heading"><div><small class="kicker">YOUR KNOWLEDGE BASE</small><h2>Add a document</h2></div><span class="section-number">01</span></div><p class="subtext">Upload a PDF or plain-text file. We’ll prepare it for semantic search.</p>
+<label class="dropzone" id="dropzone" for="fileInput"><input id="fileInput" type="file" accept=".pdf,.txt,application/pdf,text/plain" hidden><span class="upload-icon">↑</span><strong id="uploadTitle">Drop a file here, or <em>browse</em></strong><small id="uploadHint">PDF or TXT · One file at a time</small></label><div id="uploadFeedback" class="feedback" role="status" aria-live="polite"></div>
+<div class="privacy-note"><b>◈</b><span>Only upload documents you’re allowed to process. Text is sent to the configured OpenAI service for embeddings and answers.</span></div></article>
+<article class="panel doc-panel"><div class="panel-heading"><div><small class="kicker">SEARCHABLE SOURCES</small><h2>Your documents <span class="count-pill" id="libraryCount">0</span></h2></div><button class="icon-button" id="refreshButton" type="button" aria-label="Refresh documents" title="Refresh">↻</button></div>
+<div id="documentList" class="document-list" aria-live="polite"><div class="loading"><i class="spinner"></i> Loading your library…</div></div><div id="emptyLibrary" class="empty-library" hidden><span>▤</span><strong>Your library is ready</strong><p>Add a PDF or TXT document to start building your knowledge base.</p></div></article>
+</div>
+<article class="panel assistant-panel" id="assistant"><div class="assistant-heading"><div class="assistant-title"><span class="assistant-mark">✳</span><div><small class="kicker">YOUR AI RESEARCH PARTNER</small><h2>Ask your documents</h2></div></div><span class="ready-tag"><i class="status-dot online"></i> READY</span></div><p class="subtext assistant-intro">Ask in plain language. Answers use relevant passages from your indexed sources.</p>
+<div class="conversation" id="conversation" aria-live="polite" aria-label="Conversation"><div class="assistant-message"><span class="message-avatar">✳</span><div class="message-body"><small class="message-meta">KNOWLEDGE ASSISTANT <i>·</i> NOW</small><p>Hi there! I can help you find information in your documents. Add a file to your library, then ask me something specific.</p><div class="tip">✦ &nbsp;I’ll include source passages so you can check the answer.</div></div></div></div>
+<div class="suggestion-area"><small class="kicker">TRY ASKING</small><div class="suggestions"><button class="suggestion" type="button" data-question="What are the main points in my documents?">Summarize key points <b>↗</b></button><button class="suggestion" type="button" data-question="What dates or deadlines are mentioned?">Find dates &amp; deadlines <b>↗</b></button></div></div>
+<form class="question-form" id="questionForm"><label class="sr-only" for="questionInput">Ask a question about your documents</label><textarea id="questionInput" rows="1" minlength="3" maxlength="2000" placeholder="Ask something about your documents…" required></textarea><button class="send-button" id="sendButton" type="submit" aria-label="Send question">➤</button></form><div class="composer-footer"><span>AI can make mistakes. Verify important details in the sources.</span><span id="characterCount">0 / 2000</span></div></article>
+</section>
+<footer class="page-footer"><span>Knowledge Assistant <b>·</b> Built for thoughtful answers</span><span><a href="/docs" target="_blank" rel="noreferrer">API docs</a><b>·</b><a href="/health" target="_blank" rel="noreferrer">Health</a></span></footer>
+</main>
+</div>
+</body></html>

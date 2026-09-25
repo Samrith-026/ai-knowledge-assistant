@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/Samrith-026/ai-knowledge-assistant/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Samrith-026/ai-knowledge-assistant/actions/workflows/ci.yml)
 
-A production-style retrieval-augmented generation (RAG) API for indexing PDF and TXT documents and answering questions with source references. The service combines FastAPI, OpenAI embeddings and responses, PostgreSQL with pgvector, and Redis-backed caching and rate limiting.
+A production-style retrieval-augmented generation (RAG) workspace and API for indexing PDF and TXT documents and answering questions with source references. The service combines FastAPI, OpenAI embeddings and responses, PostgreSQL with pgvector, and Redis-backed caching and rate limiting.
 
 ## Architecture
 
@@ -34,6 +34,8 @@ flowchart LR
 
 ## Features
 
+- Responsive browser workspace for uploads, indexed-document counts, question answering, and expandable source citations.
+- Read-only `GET /documents` endpoint for the indexed library.
 - PDF and TXT upload at `POST /documents/upload`.
 - PDF text extraction with pypdf and overlapping word-based chunking.
 - Batched embeddings stored in a PostgreSQL `vector(1536)` column through pgvector.
@@ -48,7 +50,7 @@ flowchart LR
 
 ## Technology stack
 
-Python 3.10 · FastAPI · OpenAI Python SDK · PostgreSQL · pgvector · SQLAlchemy · Redis · pypdf · Docker Compose · GitHub Actions
+Python 3.10 · FastAPI · HTML · CSS · vanilla JavaScript · OpenAI Python SDK · PostgreSQL · pgvector · SQLAlchemy · Redis · pypdf · Docker Compose · GitHub Actions
 
 ## Requirements
 
@@ -90,7 +92,7 @@ Python 3.10 · FastAPI · OpenAI Python SDK · PostgreSQL · pgvector · SQLAlch
    uvicorn app.main:app --reload
    ```
 
-   The API is at `http://localhost:8000`; interactive OpenAPI docs are at `http://localhost:8000/docs`.
+   The responsive browser workspace is at `http://localhost:8000`; API info is at `http://localhost:8000/api`, health at `/health`, the indexed library at `/documents`, and interactive OpenAPI docs at `/docs`. No JavaScript package install or frontend build step is required.
 
 ## Environment variables
 
@@ -123,8 +125,10 @@ Compose starts PostgreSQL/pgvector and Redis, waits for their health checks, ini
 
 | Method | Path | Purpose |
 | --- | --- | --- |
-| `GET` | `/` | Basic service message |
+| `GET` | `/` | Browser workspace |
+| `GET` | `/api` | Basic service message |
 | `GET` | `/health` | Lightweight process health response |
+| `GET` | `/documents` | List indexed documents and chunk counts |
 | `POST` | `/documents/upload` | Upload and index one `.pdf` or `.txt` document |
 | `POST` | `/ask` | Retrieve relevant chunks and generate an answer |
 | `GET` | `/docs` | Interactive Swagger UI provided by FastAPI |
@@ -179,13 +183,18 @@ python -m unittest discover -s tests -v
 │   ├── database.py
 │   ├── document_ingestion.py
 │   ├── embeddings.py
-│   ├── evaluate.py
 │   ├── main.py
 │   ├── models.py
 │   ├── rag.py
 │   ├── rate_limit.py
 │   ├── schemas.py
 │   └── semantic_search.py
+├── examples/demo_handbook.txt
+├── frontend/
+│   ├── app.js
+│   ├── favicon.svg
+│   ├── index.html
+│   └── styles.css
 ├── tests/
 ├── .dockerignore
 ├── .env.example
@@ -193,6 +202,8 @@ python -m unittest discover -s tests -v
 ├── Dockerfile
 └── requirements.txt
 ```
+
+
 
 Local documents and the `data/` directory are intentionally excluded from version control. The application creates its runtime data directory when it starts.
 
@@ -202,3 +213,7 @@ Local documents and the `data/` directory are intentionally excluded from versio
 - `.env.example` contains placeholders only; `.gitignore` excludes local environment files except that template.
 - The Docker build context excludes `.env` files, virtual environments, Git metadata, and local data.
 - Rotate any credential immediately if it is accidentally exposed. Use your hosting platform’s secret manager for deployed environments.
+
+## Deployment note
+
+The browser interface is designed for local or controlled use. This API currently has no user authentication or per-user document isolation; do not expose it to the public internet until authentication, upload limits, and tenant-level data isolation are implemented. The API key must stay server-side in environment configuration.

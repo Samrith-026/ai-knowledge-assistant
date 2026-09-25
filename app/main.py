@@ -10,16 +10,21 @@ from fastapi import (
     Request,
     UploadFile
 )
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+from sqlalchemy import func
 
 from app.document_ingestion import ingest_document
 from app.schemas import (
     AskRequest,
     AskResponse,
+    DocumentsResponse,
     UploadResponse
 )
 
+from app.database import SessionLocal
 from app.exceptions import RAGServiceError
+from app.models import DocumentChunk
 from app.logging_config import setup_logging
 from app.rag import answer_question
 
@@ -38,8 +43,11 @@ from app.rate_limit import is_rate_limited
 
 app = FastAPI(
     title="AI Knowledge Assistant",
-    version="1.0.0"
+    version="1.1.0"
 )
+
+FRONTEND_DIRECTORY = Path(__file__).resolve().parent.parent / "frontend"
+app.mount("/static", StaticFiles(directory=FRONTEND_DIRECTORY), name="static")
 
 
 @app.middleware("http")
@@ -98,12 +106,12 @@ async def rag_error_handler(
 
 @app.get("/")
 def root():
+    return FileResponse(FRONTEND_DIRECTORY / "index.html")
 
-    return {
-        "message":
-        "AI Knowledge Assistant is running"
-    }
 
+@app.get("/api")
+def api_root():
+    return {"message": "AI Knowledge Assistant API is running"}
 
 @app.get("/health")
 def health():
@@ -112,6 +120,35 @@ def health():
         "status": "healthy"
     }
 
+
+@app.get("/documents", response_model=DocumentsResponse)
+def list_documents():
+    """Return indexed document names and their stored chunk counts."""
+    db = SessionLocal()
+    try:
+        rows = (
+            db.query(
+                DocumentChunk.document_name,
+                func.count(DocumentChunk.id).label("chunks"),
+            )
+            .group_by(DocumentChunk.document_name)
+            .order_by(DocumentChunk.document_name.asc())
+            .all()
+        )
+        return {
+            "documents": [
+                {"filename": name, "chunks": count}
+                for name, count in rows
+            ]
+        }
+    except Exception as exc:
+        logger.exception("Document library lookup failed")
+        raise HTTPException(
+            status_code=503,
+            detail="The document library is temporarily unavailable.",
+        ) from exc
+    finally:
+        db.close()
 
 @app.post(
     "/ask",

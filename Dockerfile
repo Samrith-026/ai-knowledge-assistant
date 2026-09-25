@@ -12,6 +12,7 @@ RUN apt-get update \
 	&& rm -rf /var/lib/apt/lists/*
 
 COPY app ./app
+COPY frontend ./frontend
 
 RUN mkdir -p /app/data
 
