@@ -15,7 +15,8 @@ class FrontendAndLibraryRouteTests(unittest.TestCase):
     def test_home_route_serves_the_frontend(self):
         response = root()
         self.assertIsInstance(response, FileResponse)
-        self.assertTrue(str(response.path).endswith("frontend/index.html"))
+        self.assertEqual(response.path.name, "index.html")
+        self.assertEqual(response.path.parent.name, "frontend")
 
     def test_document_list_returns_names_and_chunk_counts(self):
         session = Mock()
